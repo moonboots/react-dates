@@ -38,12 +38,17 @@ export default class CalendarDay extends React.Component {
   }
 
   render() {
-    const { day } = this.props;
+    const { day, onDayMouseEnter, onDayMouseLeave } = this.props;
 
     return (
       <div
         className="CalendarDay"
-        onMouseEnter={e => this.onDayMouseEnter(day, e)}
+        {...(onDayMouseEnter && {
+          onMouseEnter: e => this.onDayMouseEnter(day, e),
+        })}
+        {...(onDayMouseLeave && {
+          onMouseLeave: e => this.onDayMouseLeave(day, e),
+        })}
         onMouseLeave={e => this.onDayMouseLeave(day, e)}
         onClick={e => this.onDayClick(day, e)}
       >
