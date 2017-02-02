@@ -22,7 +22,7 @@ const propTypes = {
   month: momentPropTypes.momentObj,
   isVisible: PropTypes.bool,
   enableOutsideDays: PropTypes.bool,
-  modifiers: PropTypes.object,
+  getDayModifications: PropTypes.func.isRequired,
   orientation: ScrollableOrientationShape,
   onDayClick: PropTypes.func,
   onDayMouseEnter: PropTypes.func,
@@ -36,7 +36,6 @@ const defaultProps = {
   month: moment(),
   isVisible: true,
   enableOutsideDays: false,
-  modifiers: {},
   orientation: HORIZONTAL_ORIENTATION,
   onDayClick() {},
   onDayMouseEnter() {},
@@ -45,10 +44,6 @@ const defaultProps = {
   // i18n
   monthFormat: 'MMMM YYYY', // english locale
 };
-
-export function getModifiersForDay(modifiers, day) {
-  return day ? Object.keys(modifiers).filter(key => modifiers[key](day)) : [];
-}
 
 export default class CalendarMonth extends React.Component {
   constructor(props) {
@@ -77,7 +72,7 @@ export default class CalendarMonth extends React.Component {
       monthFormat,
       orientation,
       isVisible,
-      modifiers,
+      getDayModifications,
       onDayClick,
       onDayMouseEnter,
       onDayMouseLeave,
@@ -103,16 +98,16 @@ export default class CalendarMonth extends React.Component {
             {weeks.map((week, i) => (
               <tr key={i}>
                 {week.map((day, dayOfWeek) => {
-                  const modifiersForDay = getModifiersForDay(modifiers, day);
                   const className = cx('CalendarMonth__day', {
                     'CalendarMonth__day--outside': !day || day.month() !== month.month(),
-                  }, modifiersForDay.map(mod => `CalendarMonth__day--${mod}`));
+                  });
 
                   return (
                     <td className={className} key={dayOfWeek}>
                       {day &&
                         <CalendarDay
                           day={day}
+                          getDayModifications={getDayModifications}
                           onDayMouseEnter={onDayMouseEnter}
                           onDayMouseLeave={onDayMouseLeave}
                           onDayClick={onDayClick}

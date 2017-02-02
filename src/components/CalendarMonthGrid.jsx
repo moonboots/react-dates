@@ -24,7 +24,7 @@ const propTypes = {
   initialMonth: momentPropTypes.momentObj,
   isAnimating: PropTypes.bool,
   numberOfMonths: PropTypes.number,
-  modifiers: PropTypes.object,
+  getDayModifications: PropTypes.func.isRequired,
   orientation: ScrollableOrientationShape,
   onDayClick: PropTypes.func,
   onDayMouseEnter: PropTypes.func,
@@ -42,7 +42,6 @@ const defaultProps = {
   initialMonth: moment(),
   isAnimating: false,
   numberOfMonths: 1,
-  modifiers: {},
   orientation: HORIZONTAL_ORIENTATION,
   onDayClick() {},
   onDayMouseEnter() {},
@@ -136,7 +135,7 @@ export default class CalendarMonthGrid extends React.Component {
       enableOutsideDays,
       firstVisibleMonthIndex,
       isAnimating,
-      modifiers,
+      getDayModifications,
       numberOfMonths,
       monthFormat,
       orientation,
@@ -173,7 +172,7 @@ export default class CalendarMonthGrid extends React.Component {
               month={month}
               isVisible={isVisible}
               enableOutsideDays={enableOutsideDays}
-              modifiers={modifiers}
+              getDayModifications={getDayModifications}
               monthFormat={monthFormat}
               orientation={orientation}
               onDayMouseEnter={onDayMouseEnter}

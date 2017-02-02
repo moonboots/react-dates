@@ -27,7 +27,7 @@ const NEXT_TRANSITION = 'next';
 const propTypes = {
   enableOutsideDays: PropTypes.bool,
   numberOfMonths: PropTypes.number,
-  modifiers: PropTypes.object,
+  getDayModifications: PropTypes.func.isRequired,
   orientation: ScrollableOrientationShape,
   withPortal: PropTypes.bool,
   hidden: PropTypes.bool,
@@ -50,7 +50,6 @@ const propTypes = {
 const defaultProps = {
   enableOutsideDays: false,
   numberOfMonths: 1,
-  modifiers: {},
   orientation: HORIZONTAL_ORIENTATION,
   withPortal: false,
   hidden: false,
@@ -367,7 +366,7 @@ export default class DayPicker extends React.Component {
       enableOutsideDays,
       numberOfMonths,
       orientation,
-      modifiers,
+      getDayModifications,
       withPortal,
       onDayClick,
       onDayMouseEnter,
@@ -447,7 +446,7 @@ export default class DayPicker extends React.Component {
               firstVisibleMonthIndex={firstVisibleMonthIndex}
               initialMonth={currentMonth}
               isAnimating={isCalendarMonthGridAnimating}
-              modifiers={modifiers}
+              getDayModifications={getDayModifications}
               orientation={orientation}
               withPortal={withPortal}
               numberOfMonths={numberOfMonths * scrollableMonthMultiple}
