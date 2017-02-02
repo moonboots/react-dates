@@ -4,10 +4,6 @@ import moment from 'moment';
 
 import isTouchDevice from '../utils/isTouchDevice';
 
-import isInclusivelyAfterDay from '../utils/isInclusivelyAfterDay';
-import isNextDay from '../utils/isNextDay';
-import isSameDay from '../utils/isSameDay';
-
 import FocusedInputShape from '../shapes/FocusedInputShape';
 import ScrollableOrientationShape from '../shapes/ScrollableOrientationShape';
 
@@ -99,6 +95,31 @@ export default class DayPickerRangeController extends React.Component {
     this.onDayClick = this.onDayClick.bind(this);
     this.onDayMouseEnter = this.onDayMouseEnter.bind(this);
     this.onDayMouseLeave = this.onDayMouseLeave.bind(this);
+
+    // ideas
+    // condense modifiers into one function that takes day, returns classes
+    this.modifiers = {
+      today: day => this.isToday(day),
+      blocked: day => this.isBlocked(day),
+      'blocked-calendar': day => this.props.isDayBlocked(day),
+      'blocked-out-of-range': day => this.props.isOutsideRange(day),
+      'blocked-minimum-nights': day => this.doesNotMeetMinimumNights(day),
+      'highlighted-calendar': day => this.props.isDayHighlighted(day),
+      valid: day => !this.isBlocked(day),
+      // before anything has been set or after both are set
+      hovered: day => this.isHovered(day),
+
+      // while start date has been set, but end date has not been
+      'hovered-span': day => this.isInHoveredSpan(day),
+      'after-hovered-start': day => this.isDayAfterHoveredStartDate(day),
+      'last-in-range': day => this.isLastInRange(day),
+
+      // once a start date and end date have been set
+      'selected-start': day => this.isStartDate(day),
+      'selected-end': day => this.isEndDate(day),
+      'selected-span': day => this.isInSelectedSpan(day),
+    };
+
   }
 
   componentWillUpdate() {
@@ -155,70 +176,6 @@ export default class DayPickerRangeController extends React.Component {
     });
   }
 
-  doesNotMeetMinimumNights(day) {
-    const { startDate, isOutsideRange, focusedInput, minimumNights } = this.props;
-    if (focusedInput !== END_DATE) return false;
-
-    if (startDate) {
-      const dayDiff = day.diff(startDate, 'days');
-      return dayDiff < minimumNights && dayDiff >= 0;
-    }
-    return isOutsideRange(moment(day).subtract(minimumNights, 'days'));
-  }
-
-  isDayAfterHoveredStartDate(day) {
-    const { startDate, endDate, minimumNights } = this.props;
-    const { hoverDate } = this.state;
-    return !!startDate && !endDate && !this.isBlocked(day) && isNextDay(hoverDate, day) &&
-      minimumNights > 0 && isSameDay(hoverDate, startDate);
-  }
-
-  isEndDate(day) {
-    return isSameDay(day, this.props.endDate);
-  }
-
-  isHovered(day) {
-    return isSameDay(day, this.state.hoverDate);
-  }
-
-  isInHoveredSpan(day) {
-    const { startDate, endDate } = this.props;
-    const { hoverDate } = this.state;
-
-    const isForwardRange = !!startDate && !endDate &&
-      (day.isBetween(startDate, hoverDate) ||
-       isSameDay(hoverDate, day));
-    const isBackwardRange = !!endDate && !startDate &&
-      (day.isBetween(hoverDate, endDate) ||
-       isSameDay(hoverDate, day));
-
-    const isValidDayHovered = hoverDate && !this.isBlocked(hoverDate);
-
-    return (isForwardRange || isBackwardRange) && isValidDayHovered;
-  }
-
-  isInSelectedSpan(day) {
-    const { startDate, endDate } = this.props;
-    return day.isBetween(startDate, endDate);
-  }
-
-  isLastInRange(day) {
-    return this.isInSelectedSpan(day) && isNextDay(day, this.props.endDate);
-  }
-
-  isStartDate(day) {
-    return isSameDay(day, this.props.startDate);
-  }
-
-  isBlocked(day) {
-    const { isDayBlocked, isOutsideRange } = this.props;
-    return isDayBlocked(day) || isOutsideRange(day) || this.doesNotMeetMinimumNights(day);
-  }
-
-  isToday(day) {
-    return isSameDay(day, this.today);
-  }
-
   render() {
     const {
       isDayBlocked,
@@ -238,34 +195,12 @@ export default class DayPickerRangeController extends React.Component {
       focusedInput,
     } = this.props;
 
-    const modifiers = {
-      today: day => this.isToday(day),
-      blocked: day => this.isBlocked(day),
-      'blocked-calendar': day => isDayBlocked(day),
-      'blocked-out-of-range': day => isOutsideRange(day),
-      'blocked-minimum-nights': day => this.doesNotMeetMinimumNights(day),
-      'highlighted-calendar': day => isDayHighlighted(day),
-      valid: day => !this.isBlocked(day),
-      // before anything has been set or after both are set
-      hovered: day => this.isHovered(day),
-
-      // while start date has been set, but end date has not been
-      'hovered-span': day => this.isInHoveredSpan(day),
-      'after-hovered-start': day => this.isDayAfterHoveredStartDate(day),
-      'last-in-range': day => this.isLastInRange(day),
-
-      // once a start date and end date have been set
-      'selected-start': day => this.isStartDate(day),
-      'selected-end': day => this.isEndDate(day),
-      'selected-span': day => this.isInSelectedSpan(day),
-    };
-
     return (
       <DayPicker
         ref={(ref) => { this.dayPicker = ref; }}
         orientation={orientation}
         enableOutsideDays={enableOutsideDays}
-        modifiers={modifiers}
+        modifiers={this.modifiers}
         numberOfMonths={numberOfMonths}
         onDayClick={this.onDayClick}
         {...(this.isTouchDevice && {
