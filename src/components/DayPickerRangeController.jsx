@@ -268,8 +268,10 @@ export default class DayPickerRangeController extends React.Component {
         modifiers={modifiers}
         numberOfMonths={numberOfMonths}
         onDayClick={this.onDayClick}
-        onDayMouseEnter={this.onDayMouseEnter}
-        onDayMouseLeave={this.onDayMouseLeave}
+        {...(this.isTouchDevice && {
+          onDayMouseEnter: this.onDayMouseEnter,
+          onDayMouseLeave: this.onDayMouseLeave,
+        })}
         onPrevMonthClick={onPrevMonthClick}
         onNextMonthClick={onNextMonthClick}
         monthFormat={monthFormat}
